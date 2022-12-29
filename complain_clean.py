@@ -101,25 +101,25 @@ if __name__ == "__main__":
     df_complaints_ori = pd.read_excel('../data/ori_complaints/All Divisions Monthly Complaint Report.xlsx')
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
-    # df_complaints_unclean.to_excel('../data/complaints_unclean.xlsx', index = False)
+    df_complaints_unclean.to_excel('../data/complaints_unclean.xlsx', index = False)
     print("complaints_unclean completed, start cleaning!")
     print('='*20,'>>>')
     
     df_all = clean_process(df_complaints_unclean,lot_vendor_dict,vendor_mapping_dict) 
-    df_all.to_excel('../data/all.xlsx',index = False)
+    # df_all.to_excel('../data/all.xlsx',index = False)
     print("Vendor code added!")
     print('='*20,'>>>')
     
     df_notdme = df_all.loc[df_all['Division'] != 30]
     df_notdme = filter_notDme(df_notdme)
-    df_notdme.to_excel('../data/notdme.xlsx',index = False)
+    # df_notdme.to_excel('../data/notdme.xlsx',index = False)
     print("NotDme completed!")
     print('='*20,'>>>')
     
     df_dme_ori = df_all.loc[df_all['Division'] == 30]
     df_dme_ori.reset_index(drop = True ,inplace = True)
     print(df_dme_ori)
-    df_dme_ori.to_excel('../data/DmeData.xlsx',index = False)
+    # df_dme_ori.to_excel('../data/DmeData.xlsx',index = False)
     # df_dme_ori = pd.read_excel('../data/DmeData.xlsx')
     df_dme = dme.filter(df_dme_ori)
     print("DME clean completed!")
@@ -129,8 +129,3 @@ if __name__ == "__main__":
     df_result.to_excel('../data/result.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')
-    # main(df,lot_vendor_dict,vendor_mapping_dict)
-    # df = pd.read_excel('./DME Clean/DIV30.xlsx')
-    # df_dme = dme.filter(df,dme_substr_list)
-  
- 

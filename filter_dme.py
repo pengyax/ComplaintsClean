@@ -100,12 +100,12 @@ def filter(df):
     query_4_2 = sum([df_dme['Investigation Notification Description'].str.contains(x,case=False,na=False) for x in substr_list_notManufacturing])>0
     query_4 = query_4_1 & ~query_4_2
     
-    df_dme.loc[query_1,'step1'] = 1
-    df_dme.loc[query_2,'step2'] = 1
-    df_dme.loc[query_3,'step3'] = 1
-    df_dme.loc[query_4,'step4'] = query_4
-    df_dme.loc[query_4_1,'step4.1'] = query_4_1
-    df_dme.loc[query_4_2,'step4.2'] = query_4_2
+    # df_dme.loc[query_1,'step1'] = 1
+    # df_dme.loc[query_2,'step2'] = 1
+    # df_dme.loc[query_3,'step3'] = 1
+    # df_dme.loc[query_4,'step4'] = query_4
+    # df_dme.loc[query_4_1,'step4.1'] = query_4_1
+    # df_dme.loc[query_4_2,'step4.2'] = query_4_2
     
     query_dme = query_1 & ~query_2 & ~query_3 & query_4
     df_dme.loc[query_dme,'If Manufacturing Complaint'] = 'Y'
