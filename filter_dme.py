@@ -46,11 +46,11 @@ def filter(df):
     "is ripped",
     "missing parts",
     "missing part",
-    "Therefore, no sample is required",
+    # "Therefore, no sample is required",
     "absence of",
     "be bent",
     "was bent",
-    "fractured",
+    # "fractured"
     "stuck",
     "not working"
                  ]
@@ -59,7 +59,7 @@ def filter(df):
     "No sample or photo",
     # "No photo",
     # "issue is unknown",
-    # "issue cannot be confirmed",
+    "issue cannot be confirmed"
     # "functional or dimensional inspection cannot be executed via a photo"
                  ]
     
@@ -115,4 +115,8 @@ if __name__ == "__main__":
     
     df_dme = pd.read_excel('../data/DmeData.xlsx')
     result_df_dme = filter(df_dme)
-    result_df_dme.to_excel('../data/dme_s.xlsx',index=False)
+    dme_Manufacturing = result_df_dme.loc[result_df_dme['If Manufacturing Complaint'] == 'Y']
+    dme_Manufacturing_gy = dme_Manufacturing.groupby('Month').size()
+    print(dme_Manufacturing_gy)
+    print(sum(dme_Manufacturing_gy[:10]))
+    # result_df_dme.to_excel('../data/dme_s1.xlsx',index=False)
