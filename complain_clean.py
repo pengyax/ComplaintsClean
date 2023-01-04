@@ -126,6 +126,9 @@ if __name__ == "__main__":
     print('='*20,'>>>')
     
     df_result = pd.concat([df_notdme,df_dme],ignore_index=True)
-    df_result.to_excel('../data/result.xlsx', index = False)
+    df_columns =  df_result.columns.to_list()
+    df_columns.remove('Notification Number')
+    df_result.drop_duplicates(subset=df_columns,inplace=True)
+    df_result.to_excel('../data/result1.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')

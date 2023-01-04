@@ -117,6 +117,6 @@ if __name__ == "__main__":
     result_df_dme = filter(df_dme)
     dme_Manufacturing = result_df_dme.loc[result_df_dme['If Manufacturing Complaint'] == 'Y']
     dme_Manufacturing_gy = dme_Manufacturing.groupby('Month').size()
-    print(dme_Manufacturing_gy)
+    print(dme_Manufacturing_gy.head())
     print(sum(dme_Manufacturing_gy[:10]))
     # result_df_dme.to_excel('../data/dme_s1.xlsx',index=False)
