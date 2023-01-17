@@ -63,6 +63,7 @@ if __name__ == "__main__":
     df_lot_vendor = pd.concat([df_vendor_lot_2021,df_vendor_lot_2022])
     df_lot_vendor.dropna(subset=['LOT #'],inplace=True)
     df_lot_vendor['VENDOR #'] = df_lot_vendor['VENDOR #'].map(str)
+    df_lot_vendor['ITEM'] = df_lot_vendor['ITEM'].map(str)
     df_lot_vendor = df_lot_vendor[df_lot_vendor['VENDOR #'].str.isdigit()]
     df_lot_vendor['LOT #'] = df_lot_vendor['LOT #'].apply(lambda x: str(x).lstrip('0'))
     df_lot_vendor['key'] = df_lot_vendor['ITEM'].str.cat(df_lot_vendor['LOT #'],sep='|')
@@ -70,7 +71,7 @@ if __name__ == "__main__":
     print("lot_vendor Loaded, ready to go!")
     print('='*20,'>>>')
     
-    vendor_mapping = pd.read_excel(r'C:\Medline\CPM\data\vendor_mapping\Vendor _mapping 2022_v11.xlsx')
+    vendor_mapping = pd.read_excel(r'C:\Medline\CPM\data\vendor_mapping\Vendor _mapping 2022_v12.xlsx')
     vendor_mapping_dict = dict(zip(vendor_mapping['Vendor Number'],vendor_mapping['Cleaned Vendor Name']))
     
     print("vendor_mapping Loaded and ready for start-up!")
@@ -97,29 +98,41 @@ if __name__ == "__main__":
     df_div22_ori.drop(columns='Material Number',inplace=True)
     df_div22_ori.rename(columns=div22_map,inplace=True)
     df_div22 = df_div22_ori[list(div22_map.values())] 
+    print("div22 combine!")
+    print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints/All Divisions Monthly Complaint Report.xlsx')
+    df_complaints_ori = pd.read_excel('../data/ori_complaints/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/complaints_unclean.xlsx', index = False)
     print("complaints_unclean completed, start cleaning!")
     print('='*20,'>>>')
     
+    name_map = pd.read_excel('../data/name_map/name_map.xlsx',sheet_name=0)
+    name_map = name_map.loc[name_map['code'].notnull(),]
+    name_map['code'] = name_map['code'].map(int)
+    name_map_list = dict(zip(name_map['key'],name_map['code']))
+    df_complaints_unclean['Material Vendor']  = df_complaints_unclean['Material Vendor'].replace(name_map_list)
+    
     df_all = clean_process(df_complaints_unclean,lot_vendor_dict,vendor_mapping_dict) 
-    # df_all.to_excel('../data/all.xlsx',index = False)
+    
+    vendor_mapping_inspection = vendor_mapping.loc[vendor_mapping['Regional Manager'] != 'Exemption','Vendor Number'].to_list()
+    df_all = df_all.loc[df_all['Material Vendor'].isin(vendor_mapping_inspection)]
+    df_all.to_excel('../data/all.xlsx',index = False)
+    
     print("Vendor code added!")
     print('='*20,'>>>')
     
     df_notdme = df_all.loc[df_all['Division'] != 30]
     df_notdme = filter_notDme(df_notdme)
-    # df_notdme.to_excel('../data/notdme.xlsx',index = False)
+    df_notdme.to_excel('../data/notdme.xlsx',index = False)
     print("NotDme completed!")
     print('='*20,'>>>')
     
     df_dme_ori = df_all.loc[df_all['Division'] == 30]
     df_dme_ori.reset_index(drop = True ,inplace = True)
-    print(df_dme_ori)
-    # df_dme_ori.to_excel('../data/DmeData.xlsx',index = False)
+    print(len(df_dme_ori))
+    df_dme_ori.to_excel('../data/DmeData.xlsx',index = False)
     # df_dme_ori = pd.read_excel('../data/DmeData.xlsx')
     df_dme = dme.filter(df_dme_ori)
     print("DME clean completed!")

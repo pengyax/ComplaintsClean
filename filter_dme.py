@@ -8,6 +8,9 @@ def filter(df):
     substr_list_step3 = [
     "No investigation summary", 
     "Not Medline branded product",
+    "Not Medline branded",
+    "Non-Medline labeled",
+    "not Medline labeld items",
     "Canceled by customer",
     "closed by the customer",
     "customer cancelled",
@@ -19,8 +22,11 @@ def filter(df):
     "Products operate as designed",
     "Products work according to design",
     "Out of warranty",
+    "outside the warranty",
+    "is not in warranty",
     "Beyond the warranty period",
     "Shipping damage",
+    "happened during shipping",
     "freight damage",
     "transportation damage",
     "transport damage",
@@ -28,38 +34,37 @@ def filter(df):
     "transportation leakage",
     "Shipping leakage",
     "Transport leakage",
-    "No samples",
     "no pictures received",
-    "missing product",
+    "No sample or photo of the defective product",
     "No sample or picture received",
-    "No sample",
     "No sample or photo",
     "No sample was received"
                  ]
     substr_list_Manufacturing = [
     "complaint has been confirmed", 
-    "are missing",
-    "is missing",
-    "was missing",
-    "were missing",
-    "are ripped",
-    "is ripped",
-    "missing parts",
-    "missing part",
+    "Investigation results: Confirmed"
+    # "are missing",
+    # "is missing",
+    # "was missing",
+    # "were missing",
+    # "are ripped",
+    # "is ripped",
+    # "missing parts",
+    # "missing part",
     # "Therefore, no sample is required",
-    "absence of",
-    "be bent",
-    "was bent",
+    # "absence of",
+    # "be bent",
+    # "was bent",
     # "fractured"
-    "stuck",
-    "not working"
+    # "stuck"
+    # "not working"
                  ]
     substr_list_notManufacturing = [
-    # "The root cause of this issue is unknown", 
-    "No sample or photo",
+    # "The root cause of this issue is unknown"
+    # "No sample or photo",
     # "No photo",
     # "issue is unknown",
-    "issue cannot be confirmed"
+    # "issue cannot be confirmed"
     # "functional or dimensional inspection cannot be executed via a photo"
                  ]
     
@@ -117,6 +122,6 @@ if __name__ == "__main__":
     result_df_dme = filter(df_dme)
     dme_Manufacturing = result_df_dme.loc[result_df_dme['If Manufacturing Complaint'] == 'Y']
     dme_Manufacturing_gy = dme_Manufacturing.groupby('Month').size()
-    print(dme_Manufacturing_gy.head())
-    print(sum(dme_Manufacturing_gy[:10]))
+    print(dme_Manufacturing_gy)
+    print(sum(dme_Manufacturing_gy[:12]))
     # result_df_dme.to_excel('../data/dme_s1.xlsx',index=False)
