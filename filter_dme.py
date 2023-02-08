@@ -66,6 +66,7 @@ def filter(df):
     # "issue is unknown",
     # "issue cannot be confirmed"
     # "functional or dimensional inspection cannot be executed via a photo"
+    "dark souls"
                  ]
     
     not_substr_list = substr_list_step1.copy()
@@ -118,10 +119,10 @@ def filter(df):
 
 if __name__ == "__main__":
     
-    df_dme = pd.read_excel('../data/DmeData.xlsx')
+    df_dme = pd.read_excel('../data/DmeData2023.xlsx')
     result_df_dme = filter(df_dme)
     dme_Manufacturing = result_df_dme.loc[result_df_dme['If Manufacturing Complaint'] == 'Y']
     dme_Manufacturing_gy = dme_Manufacturing.groupby('Month').size()
     print(dme_Manufacturing_gy)
     print(sum(dme_Manufacturing_gy[:12]))
-    # result_df_dme.to_excel('../data/dme_s1.xlsx',index=False)
+    result_df_dme.to_excel('../data/dme2023.xlsx',index=False)
