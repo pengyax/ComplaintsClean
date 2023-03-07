@@ -62,6 +62,7 @@ if __name__ == "__main__":
     df_vendor_lot_2022 = pd.read_excel('../data/lot_vendor/venor_lot_2022.xlsx',sheet_name=0,usecols="J,L,P")
     df_vendor_lot_2023 = pd.read_excel('../data/lot_vendor/venor_lot_2023.xlsx',sheet_name=0,usecols="J,L,P")
     df_lot_vendor = pd.concat([df_vendor_lot_2021,df_vendor_lot_2022,df_vendor_lot_2023])
+    # df_lot_vendor = pd.concat([df_vendor_lot_2023])
     df_lot_vendor.dropna(subset=['LOT #'],inplace=True)
     df_lot_vendor['VENDOR #'] = df_lot_vendor['VENDOR #'].map(str)
     df_lot_vendor['ITEM'] = df_lot_vendor['ITEM'].map(str)
@@ -102,7 +103,7 @@ if __name__ == "__main__":
     print("div22 combine!")
     print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints/2023/02/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
@@ -121,7 +122,6 @@ if __name__ == "__main__":
     df_complaints_unclean['newdiv'] = df_complaints_unclean.loc[df_complaints_unclean['Division'].isin([14,81])].apply(lambda x: div14_81_ditc.get(x['Material Group'],x['Division']),axis=1)
     df_complaints_unclean.loc[df_complaints_unclean['newdiv'].notnull(),'Division'] = df_complaints_unclean['newdiv']
     df_complaints_unclean.drop(columns='newdiv',inplace=True,axis=1)
-    
     
     df_all = clean_process(df_complaints_unclean,lot_vendor_dict,vendor_mapping_dict) 
     

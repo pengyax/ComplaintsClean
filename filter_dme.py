@@ -1,7 +1,7 @@
 import pandas as pd
 
 def filter(df):     
-    
+    df.reset_index(inplace=True,drop=True)
     df_dme = df.copy()
     substr_list_step1 = ["Missing", "loose", "Bent", "crack", "damage", "Motor", "brakes", "brake", "broken"]
     substr_list_step2 = ["End of life expectancy", "normal wear", "tear", "customer", "Data entry error", "Data error"]
