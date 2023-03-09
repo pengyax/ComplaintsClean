@@ -61,7 +61,8 @@ if __name__ == "__main__":
     df_vendor_lot_2021 = pd.read_excel('../data/lot_vendor/venor_lot_2021.xlsx',sheet_name=0,usecols=[9,11,15])
     df_vendor_lot_2022 = pd.read_excel('../data/lot_vendor/venor_lot_2022.xlsx',sheet_name=0,usecols="J,L,P")
     df_vendor_lot_2023 = pd.read_excel('../data/lot_vendor/venor_lot_2023.xlsx',sheet_name=0,usecols="J,L,P")
-    df_lot_vendor = pd.concat([df_vendor_lot_2021,df_vendor_lot_2022,df_vendor_lot_2023])
+    df_vendor_lot_2020 = pd.read_excel('../data/lot_vendor/venor_lot_2019_20.xlsx',sheet_name=0,usecols="J,L,P")
+    df_lot_vendor = pd.concat([df_vendor_lot_2020,df_vendor_lot_2021,df_vendor_lot_2022,df_vendor_lot_2023])
     # df_lot_vendor = pd.concat([df_vendor_lot_2023])
     df_lot_vendor.dropna(subset=['LOT #'],inplace=True)
     df_lot_vendor['VENDOR #'] = df_lot_vendor['VENDOR #'].map(str)
@@ -103,12 +104,14 @@ if __name__ == "__main__":
     print("div22 combine!")
     print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints/2023/02/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/02/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
     print("complaints_unclean completed, start cleaning!")
     print('='*20,'>>>')
+    
+    df_complaints_unclean.loc[df_complaints_unclean['Division'].isin([32,34]),'Division'] = 30
     
     name_map = pd.read_excel('../data/name_map/name_map.xlsx',sheet_name=0)
     name_map = name_map.loc[name_map['code'].notnull(),]
