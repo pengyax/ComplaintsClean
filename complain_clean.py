@@ -154,6 +154,13 @@ if __name__ == "__main__":
     df_columns =  df_result.columns.to_list()
     df_columns.remove('Notification Number')
     df_result.drop_duplicates(subset=df_columns,inplace=True)
+    
+    path_preceding = r'C:\Medline\CPM\2023\202302 Complaint Data.xlsx'
+    df_preceding = pd.read_excel(path_preceding,sheet_name='2023 Complaint Database')
+    df_preceding_list = df_preceding.loc[df_preceding['If Manufacturing Complaint']=='Y','Notification Number'].to_list()
+    df_result.loc[df_result['Notification Number'].isin(df_preceding_list),'New manufacturing complaints'] = 'Y'
+    df_result.insert(0,'New manufacturing complaints',df_result.pop('New manufacturing complaints'))
+    
     df_result.to_excel('../data/result2023.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')
