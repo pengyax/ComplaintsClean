@@ -25,10 +25,11 @@ def clean_process(df,lot_vendor,vendor_mapping):
         df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].str.replace('nan','')
         df_Duplicate.loc[:,'Notification Created Date'] = pd.to_datetime(df_Duplicate['Notification Created Date'],format='%Y/%m/%d')
         df_Duplicate['Month'] = df_Duplicate['Notification Created Date'].dt.month
+        df_Duplicate['Year'] = df_Duplicate['Notification Created Date'].dt.year
         df_Duplicate = df_Duplicate[df_Duplicate['Material Vendor'].notnull()]
         df_Duplicate['key'] = df_Duplicate['Notification Number'].map(str).str.cat([df_Duplicate['Material Number'].map(str), df_Duplicate['Material Vendor'].map(str), df_Duplicate['Material Lot Number'].map(str)],sep='|')
         df_Duplicate.drop_duplicates(subset=['key'],inplace=True)
-        df_Duplicate = df_Duplicate[['Division', 'Notification Number', 'Notification Created Date','Month',
+        df_Duplicate = df_Duplicate[['Division', 'Notification Number', 'Notification Created Date','Year','Month',
        'Notification Completion Date', 'Sample Received Date',
        'Account Number of Customer', 'Material Group', 'Material Number',
        'Material Description', 'Material Vendor', 'Vendor Name','Material Lot Number',
@@ -58,11 +59,11 @@ if __name__ == "__main__":
    
     dme_substr_list = ["Missing", "loose", "Bent", "crack", "damage", "Motor", "brakes", "brake", "broken"]
     
-    df_vendor_lot_2021 = pd.read_excel('../data/lot_vendor/venor_lot_2021.xlsx',sheet_name=0,usecols=[9,11,15])
-    df_vendor_lot_2022 = pd.read_excel('../data/lot_vendor/venor_lot_2022.xlsx',sheet_name=0,usecols="J,L,P")
-    df_vendor_lot_2023 = pd.read_excel('../data/lot_vendor/venor_lot_2023.xlsx',sheet_name=0,usecols="J,L,P")
-    df_vendor_lot_2020 = pd.read_excel('../data/lot_vendor/venor_lot_2019_20.xlsx',sheet_name=0,usecols="J,L,P")
-    df_lot_vendor = pd.concat([df_vendor_lot_2020,df_vendor_lot_2021,df_vendor_lot_2022,df_vendor_lot_2023])
+    df_vendor_lot_2021 = pd.read_excel('../data/lot_vendor/vendor_lot_2021.xlsx',sheet_name=0,usecols=[9,11,15])
+    df_vendor_lot_2022 = pd.read_excel('../data/lot_vendor/vendor_lot_2022.xlsx',sheet_name=0,usecols="J,L,P")
+    df_vendor_lot_2023 = pd.read_excel('../data/lot_vendor/vendor_lot_2023.xlsx',sheet_name=0,usecols="J,L,P")
+    df_vendor_lot_2020 = pd.read_excel('../data/lot_vendor/vendor_lot_2019_20.xlsx',sheet_name=0,usecols="J,L,P")
+    df_lot_vendor = pd.concat([df_vendor_lot_2023,df_vendor_lot_2022,df_vendor_lot_2021,df_vendor_lot_2020],ignore_index=True)
     # df_lot_vendor = pd.concat([df_vendor_lot_2023])
     df_lot_vendor.dropna(subset=['LOT #'],inplace=True)
     df_lot_vendor['VENDOR #'] = df_lot_vendor['VENDOR #'].map(str)
@@ -104,7 +105,7 @@ if __name__ == "__main__":
     print("div22 combine!")
     print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/02/All Divisions Monthly Complaint Report.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/04/All Divisions Monthly Complaint Report_04.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
@@ -130,14 +131,14 @@ if __name__ == "__main__":
     
     vendor_mapping_inspection = vendor_mapping.loc[(~vendor_mapping['Regional Manager'].isin(['Exemption','US vendor']))&(vendor_mapping['Regional Manager'].notnull()),'Vendor Number'].to_list()
     df_all = df_all.loc[df_all['Material Vendor'].isin(vendor_mapping_inspection)]
-    df_all.to_excel('../data/all2023.xlsx',index = False)
+    # df_all.to_excel('../data/all2023.xlsx',index = False)
     
     print("Vendor code added!")
     print('='*20,'>>>')
     
     df_notdme = df_all.loc[df_all['Division'] != 30]
     df_notdme = filter_notDme(df_notdme)
-    df_notdme.to_excel('../data/notdme2023.xlsx',index = False)
+    # df_notdme.to_excel('../data/notdme2023.xlsx',index = False)
     print("NotDme completed!")
     print('='*20,'>>>')
     
@@ -155,12 +156,12 @@ if __name__ == "__main__":
     df_columns.remove('Notification Number')
     df_result.drop_duplicates(subset=df_columns,inplace=True)
     
-    path_preceding = r'C:\Medline\CPM\2023\202302 Complaint Data.xlsx'
+    path_preceding = r'C:\Medline\CPM\2023\202303 Complaint Data.xlsx'
     df_preceding = pd.read_excel(path_preceding,sheet_name='2023 Complaint Database')
     df_preceding_list = df_preceding.loc[df_preceding['If Manufacturing Complaint']=='Y','Notification Number'].to_list()
-    df_result.loc[df_result['Notification Number'].isin(df_preceding_list),'New manufacturing complaints'] = 'Y'
+    df_result.loc[(~df_result['Notification Number'].isin(df_preceding_list))&(df_result['If Manufacturing Complaint'] =='Y'),'New manufacturing complaints'] = 'Y'
     df_result.insert(0,'New manufacturing complaints',df_result.pop('New manufacturing complaints'))
     
-    df_result.to_excel('../data/result2023.xlsx', index = False)
+    df_result.to_excel('../data/result202304.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')

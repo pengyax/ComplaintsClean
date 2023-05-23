@@ -31,8 +31,11 @@ def filter(df):
     "transportation damage",
     "transport damage",
     "shipment damage",
+    "shipping  damage",
     "happened during shipping",
     "during shipping",
+    "It is possible this may have happened duringshipping",
+    "duringshipping",
     "It may have been lost during shipping",
     "transportation leakage",
     "Shipping leakage",
@@ -107,7 +110,8 @@ def filter(df):
     
     query_4_1 = sum([df_dme['Investigation Notification Description'].str.contains(x,case=False,na=False) for x in substr_list_Manufacturing])>0
     query_4_2 = sum([df_dme['Investigation Notification Description'].str.contains(x,case=False,na=False) for x in substr_list_notManufacturing])>0
-    query_4 = query_4_1 & ~query_4_2
+    query_4_3 = df_dme['Investigation Notification Description'].str[:1000].str.contains('Investigation results: Confirmed',case=False,na=False)
+    query_4 = query_4_1 & ~query_4_2 & query_4_3
     
     # df_dme.loc[query_1,'step1'] = 1
     # df_dme.loc[query_2,'step2'] = 1
