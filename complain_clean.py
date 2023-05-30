@@ -17,9 +17,9 @@ def clean_process(df,lot_vendor,vendor_mapping):
         df_Duplicate = df.copy()
         df_Duplicate['Material Vendor'] = df_Duplicate['Material Vendor'].map(str)
         df_Duplicate.loc[((df_Duplicate['Division'] == 21) | (df_Duplicate['Division'] == 51))&(~df_Duplicate['Material Vendor'].str.isdigit()),'Material Vendor'] = df_Duplicate['Manufacture Site']
-        df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].apply(lambda x: str(x).lstrip('0'))
+        df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].str.lstrip('0')
         
-        df_Duplicate['Material Vendor'] = df_Duplicate.apply(lambda x : get_vendor(x),axis=1)
+        df_Duplicate['Material Vendor'] = df_Duplicate['Material Vendor'].map(vendor_mapping)
         df_Duplicate['Vendor Name'] = df_Duplicate['Material Vendor'].apply(lambda x :vendor_mapping.get(x,np.nan))
         df_Duplicate['If Manufacturing Complaint'] = 'N'
         df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].str.replace('nan','')
@@ -27,7 +27,7 @@ def clean_process(df,lot_vendor,vendor_mapping):
         df_Duplicate['Month'] = df_Duplicate['Notification Created Date'].dt.month
         df_Duplicate['Year'] = df_Duplicate['Notification Created Date'].dt.year
         df_Duplicate = df_Duplicate[df_Duplicate['Material Vendor'].notnull()]
-        df_Duplicate['key'] = df_Duplicate['Notification Number'].map(str).str.cat([df_Duplicate['Material Number'].map(str), df_Duplicate['Material Vendor'].map(str), df_Duplicate['Material Lot Number'].map(str)],sep='|')
+        df_Duplicate['key'] = [f'{n}|{m}|{v}|{l}' for n, m, v, l in zip(df_Duplicate['Notification Number'], df_Duplicate['Material Number'], df_Duplicate['Material Vendor'], df_Duplicate['Material Lot Number'])]
         df_Duplicate.drop_duplicates(subset=['key'],inplace=True)
         df_Duplicate = df_Duplicate[['Division', 'Notification Number', 'Notification Created Date','Year','Month',
        'Notification Completion Date', 'Sample Received Date',
