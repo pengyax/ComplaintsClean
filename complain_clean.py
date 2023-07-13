@@ -19,8 +19,8 @@ def clean_process(df,lot_vendor,vendor_mapping):
         df_Duplicate.loc[((df_Duplicate['Division'] == 21) | (df_Duplicate['Division'] == 51))&(~df_Duplicate['Material Vendor'].str.isdigit()),'Material Vendor'] = df_Duplicate['Manufacture Site']
         df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].str.lstrip('0')
         
-        df_Duplicate['Material Vendor'] = df_Duplicate['Material Vendor'].map(vendor_mapping)
-        df_Duplicate['Vendor Name'] = df_Duplicate['Material Vendor'].apply(lambda x :vendor_mapping.get(x,np.nan))
+        df_Duplicate['Material Vendor'] = df_Duplicate.apply(lambda x : get_vendor(x),axis=1)
+        df_Duplicate['Vendor Name'] = df_Duplicate['Material Vendor'].map(vendor_mapping)
         df_Duplicate['If Manufacturing Complaint'] = 'N'
         df_Duplicate['Material Lot Number'] = df_Duplicate['Material Lot Number'].str.replace('nan','')
         df_Duplicate.loc[:,'Notification Created Date'] = pd.to_datetime(df_Duplicate['Notification Created Date'],format='%Y/%m/%d')
@@ -75,37 +75,40 @@ if __name__ == "__main__":
     print("lot_vendor Loaded, ready to go!")
     print('='*20,'>>>')
     
-    vendor_mapping = pd.read_excel(r'C:\Medline\CPM\data\vendor_mapping\Vendor _mapping 2022_v12.xlsx')
+    vendor_mapping = pd.read_excel(r'C:\Medline\CPM\data\vendor_mapping\Vendor _mapping 2023_v1.xlsx')
     vendor_mapping_dict = dict(zip(vendor_mapping['Vendor Number'],vendor_mapping['Cleaned Vendor Name']))
     
     print("vendor_mapping Loaded and ready for start-up!")
     print('='*20,'>>>')
     
-    df_div22_ori = pd.read_excel('../data/div_22/div22.xlsx')
+    df_div22_ori = pd.read_excel('../data/div_22/Asia Div 22 Complaints, 2023-06-03.xlsx',sheet_name=0)
     div22_map = {
             "Division": "Division",
             "Notification Number": "Notification Number",
             "Notification Created Date": "Notification Created Date",
-            "Customer Number": "Account Number of Customer",
+            "Notification Completion Date": "Notification Completion Date",
             "Material Group": "Material Group",
             "Component": "Material Number",
             "Component Description": "Material Description",
-            "Vendor Number": "Material Vendor",
+            "Component Vendor": "Material Vendor",
             # "Vendor Name": "Vendor Name",
             "Notification Description": "Notification Description",
             "Short Text For Defect Type Code": "Short Text For Defect Type Code",
+            "Defect Group":'Defect Group',
             "Short Text For Cause Code": "Short Text For Cause Code",
-            "Cause Code Tier 1": "Cause Group",
-            "Manufacture Site": "Manufacture Site"
+            "Cause Group": "Cause Group",
+            "Manufacture Site": "Manufacture Site",
+            "Investigation Notification Description":'Investigation Notification Description'
         }
     df_div22_ori.loc[df_div22_ori['Division'] !=22,'Division'] = 22
-    df_div22_ori.drop(columns='Material Number',inplace=True)
+    df_div22_ori.drop(columns=['Material Number','Material Description'],inplace=True)
     df_div22_ori.rename(columns=div22_map,inplace=True)
     df_div22 = df_div22_ori[list(div22_map.values())]
     print("div22 combine!")
+    print(df_div22.info())
     print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/04/All Divisions Monthly Complaint Report_04.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/06/All Divisions Monthly Complaint Report_06.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
@@ -126,6 +129,7 @@ if __name__ == "__main__":
     df_complaints_unclean['newdiv'] = df_complaints_unclean.loc[df_complaints_unclean['Division'].isin([14,81])].apply(lambda x: div14_81_ditc.get(x['Material Group'],x['Division']),axis=1)
     df_complaints_unclean.loc[df_complaints_unclean['newdiv'].notnull(),'Division'] = df_complaints_unclean['newdiv']
     df_complaints_unclean.drop(columns='newdiv',inplace=True,axis=1)
+    
     
     df_all = clean_process(df_complaints_unclean,lot_vendor_dict,vendor_mapping_dict) 
     
@@ -156,12 +160,13 @@ if __name__ == "__main__":
     df_columns.remove('Notification Number')
     df_result.drop_duplicates(subset=df_columns,inplace=True)
     
-    path_preceding = r'C:\Medline\CPM\2023\202303 Complaint Data.xlsx'
+    path_preceding = r'C:\Medline\CPM\2023\202305 Complaint Data.xlsx'
     df_preceding = pd.read_excel(path_preceding,sheet_name='2023 Complaint Database')
     df_preceding_list = df_preceding.loc[df_preceding['If Manufacturing Complaint']=='Y','Notification Number'].to_list()
     df_result.loc[(~df_result['Notification Number'].isin(df_preceding_list))&(df_result['If Manufacturing Complaint'] =='Y'),'New manufacturing complaints'] = 'Y'
     df_result.insert(0,'New manufacturing complaints',df_result.pop('New manufacturing complaints'))
     
-    df_result.to_excel('../data/result202304.xlsx', index = False)
+    # df_result.loc[df_result['Notification Number'].isin([200541987]),'If Manufacturing Complaint'] = 'Y'
+    df_result.to_excel('../data/resultAll.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')

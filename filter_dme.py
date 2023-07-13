@@ -26,6 +26,7 @@ def filter(df):
     "is not in warranty",
     "Beyond the warranty period",
     "Shipping damage",
+    "shippingdamage",
     "happened during shipping",
     "freight damage",
     "transportation damage",
@@ -48,6 +49,7 @@ def filter(df):
                  ]
     substr_list_Manufacturing = [
     "complaint has been confirmed", 
+    "The other cuff is not loose",
     "Investigation results: Confirmed"
     # "are missing",
     # "is missing",
@@ -74,7 +76,7 @@ def filter(df):
     # "functional or dimensional inspection cannot be executed via a photo"
     "dark souls"
                  ]
-    
+    # not_substr_list_step1 = [x for x in substr_list_step1 if x not in ['brake', 'brakes']]
     not_substr_list = substr_list_step1.copy()
     not_substr_list.remove('brake')
     not_substr_list.remove('brakes')
