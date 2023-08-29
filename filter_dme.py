@@ -33,6 +33,7 @@ def filter(df):
     "transport damage",
     "shipment damage",
     "shipping  damage",
+    "damaged in shipping",
     "happened during shipping",
     "during shipping",
     "It is possible this may have happened duringshipping",

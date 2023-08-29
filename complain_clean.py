@@ -81,7 +81,7 @@ if __name__ == "__main__":
     print("vendor_mapping Loaded and ready for start-up!")
     print('='*20,'>>>')
     
-    df_div22_ori = pd.read_excel('../data/div_22/Asia Div 22 Complaints, 2023-06-03.xlsx',sheet_name=0)
+    df_div22_ori = pd.read_excel('../data/div_22/Asia Div 22 Complaints, 2023-08-03.xlsx',sheet_name=0)
     div22_map = {
             "Division": "Division",
             "Notification Number": "Notification Number",
@@ -108,14 +108,14 @@ if __name__ == "__main__":
     print(df_div22.info())
     print('='*20,'>>>')
     
-    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/06/All Divisions Monthly Complaint Report_06.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints//2023/07/All Divisions Monthly Complaint Report_07.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
     print("complaints_unclean completed, start cleaning!")
     print('='*20,'>>>')
     
-    df_complaints_unclean.loc[df_complaints_unclean['Division'].isin([32,34]),'Division'] = 30
+    # df_complaints_unclean.loc[df_complaints_unclean['Division'].isin([32,34]),'Division'] = 30
     
     name_map = pd.read_excel('../data/name_map/name_map.xlsx',sheet_name=0)
     name_map = name_map.loc[name_map['code'].notnull(),]
@@ -140,13 +140,13 @@ if __name__ == "__main__":
     print("Vendor code added!")
     print('='*20,'>>>')
     
-    df_notdme = df_all.loc[df_all['Division'] != 30]
+    df_notdme = df_all.loc[~df_all['Division'].isin([30,32,34])]
     df_notdme = filter_notDme(df_notdme)
     # df_notdme.to_excel('../data/notdme2023.xlsx',index = False)
     print("NotDme completed!")
     print('='*20,'>>>')
     
-    df_dme_ori = df_all.loc[df_all['Division'] == 30]
+    df_dme_ori = df_all.loc[df_all['Division'].isin([30,32,34])]
     df_dme_ori.reset_index(drop = True ,inplace = True)
     print(len(df_dme_ori))
     df_dme_ori.to_excel('../data/DmeData2023.xlsx',index = False)
@@ -160,13 +160,13 @@ if __name__ == "__main__":
     df_columns.remove('Notification Number')
     df_result.drop_duplicates(subset=df_columns,inplace=True)
     
-    path_preceding = r'C:\Medline\CPM\2023\202305 Complaint Data.xlsx'
+    path_preceding = r'C:\Medline\CPM\2023\202306 Complaint Data.xlsx'
     df_preceding = pd.read_excel(path_preceding,sheet_name='2023 Complaint Database')
     df_preceding_list = df_preceding.loc[df_preceding['If Manufacturing Complaint']=='Y','Notification Number'].to_list()
     df_result.loc[(~df_result['Notification Number'].isin(df_preceding_list))&(df_result['If Manufacturing Complaint'] =='Y'),'New manufacturing complaints'] = 'Y'
     df_result.insert(0,'New manufacturing complaints',df_result.pop('New manufacturing complaints'))
     
-    # df_result.loc[df_result['Notification Number'].isin([200541987]),'If Manufacturing Complaint'] = 'Y'
+    df_result.loc[df_result['Notification Number'].isin([200541987]),'If Manufacturing Complaint'] = 'Y'
     df_result.to_excel('../data/resultAll.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')
