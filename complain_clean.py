@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import filter_dme as dme
 import traceback
+from sql_engine import connect
+fn_engine = connect('fn_mysql')
 
 
 def clean_process(df,lot_vendor,vendor_mapping):
@@ -59,12 +61,13 @@ if __name__ == "__main__":
    
     dme_substr_list = ["Missing", "loose", "Bent", "crack", "damage", "Motor", "brakes", "brake", "broken"]
     
-    df_vendor_lot_2021 = pd.read_excel('../data/lot_vendor/vendor_lot_2021.xlsx',sheet_name=0,usecols=[9,11,15])
-    df_vendor_lot_2022 = pd.read_excel('../data/lot_vendor/vendor_lot_2022.xlsx',sheet_name=0,usecols="J,L,P")
-    df_vendor_lot_2023 = pd.read_excel('../data/lot_vendor/vendor_lot_2023.xlsx',sheet_name=0,usecols="J,L,P")
-    df_vendor_lot_2020 = pd.read_excel('../data/lot_vendor/vendor_lot_2019_20.xlsx',sheet_name=0,usecols="J,L,P")
-    df_lot_vendor = pd.concat([df_vendor_lot_2023,df_vendor_lot_2022,df_vendor_lot_2021,df_vendor_lot_2020],ignore_index=True)
-    # df_lot_vendor = pd.concat([df_vendor_lot_2023])
+    sql_query = f'''
+            select
+                *
+            from
+                lot_data_all
+            '''
+    df_lot_vendor = pd.read_sql(sql_query,fn_engine)
     df_lot_vendor.dropna(subset=['LOT #'],inplace=True)
     df_lot_vendor['VENDOR #'] = df_lot_vendor['VENDOR #'].map(str)
     df_lot_vendor['ITEM'] = df_lot_vendor['ITEM'].map(str)
