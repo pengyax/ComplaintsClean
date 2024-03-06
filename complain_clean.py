@@ -94,7 +94,7 @@ if __name__ == "__main__":
     print('='*20,'>>>')
     
     # 读取Div22数据
-    df_div22_ori = pd.read_excel('../data/div_22/Asia Div 22 Complaints, 2024-02-03.xlsx',sheet_name=0)
+    df_div22_ori = pd.read_excel('../data/div_22/Asia Div 22 Complaints, 2024-03-04.xlsx',sheet_name=0)
     div22_map = {
             "Division": "Division",
             "Notification Number": "Notification Number",
@@ -104,6 +104,7 @@ if __name__ == "__main__":
             "Component": "Material Number",
             "Component Description": "Material Description",
             "Component Vendor": "Material Vendor",
+            "Component Lot Serial Number": "Material Lot Number",
             # "Vendor Name": "Vendor Name",
             "Notification Description": "Notification Description",
             "Short Text For Defect Type Code": "Short Text For Defect Type Code",
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     print('='*20,'>>>')
     
     # 生成未清洗数据
-    df_complaints_ori = pd.read_excel('../data/ori_complaints//2024/01/All Divisions Monthly Complaint Report_01.xlsx',sheet_name=0)
+    df_complaints_ori = pd.read_excel('../data/ori_complaints//2024/03/All Divisions Monthly Complaint Report_240306.xlsx',sheet_name=0)
     df_complaints_ori_not22 = df_complaints_ori.loc[df_complaints_ori['Division'] != 22] 
     df_complaints_unclean = pd.concat([df_complaints_ori_not22,df_div22],ignore_index=True)
     df_complaints_unclean.to_excel('../data/Complaint Raw Data Uncleaned.xlsx', index = False)
@@ -152,7 +153,7 @@ if __name__ == "__main__":
     # 生成验货供应商投诉明细
     vendor_mapping_inspection = vendor_mapping.loc[(~vendor_mapping['Regional Manager'].isin(['Exemption','US vendor']))&(vendor_mapping['Regional Manager'].notnull()),'Vendor Number'].to_list()
     df_all = df_all.loc[df_all['Material Vendor'].isin(vendor_mapping_inspection)]
-    df_all.to_excel('../data/all2023.xlsx',index = False)
+    df_all.to_excel('../data/all2024.xlsx',index = False)
     
     print("Vendor code added!")
     print('='*20,'>>>')
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     df_dme_ori = df_all.loc[df_all['Division'].isin([30,32,34])]
     df_dme_ori.reset_index(drop = True ,inplace = True)
     print(len(df_dme_ori))
-    df_dme_ori.to_excel('../data/DmeData2023.xlsx',index = False)
+    df_dme_ori.to_excel('../data/DmeData2024.xlsx',index = False)
     # df_dme_ori = pd.read_excel('../data/DmeData.xlsx')
     df_dme = dme.filter(df_dme_ori)
     print("DME clean completed!")
@@ -177,17 +178,17 @@ if __name__ == "__main__":
     df_columns_list =  df_result.columns.to_list()
     df_columns_list.remove('Notification Number')
     df_result.drop_duplicates(subset=df_columns_list,inplace=True)
-    df_result.to_excel('../data/11.xlsx', index = False)
+    # df_result.to_excel('../data/11.xlsx', index = False)
     
     # 判断新增Manufacturing投诉
-    path_preceding = r'C:\Medline\2. CPM\2. US Complaints\2023\202312 Complaint Data.xlsx'
-    df_preceding = pd.read_excel(path_preceding,sheet_name='2023 Complaint Database')
+    path_preceding = r'C:\Medline\2. CPM\2. US Complaints\2024\202401 Complaint Data.xlsx'
+    df_preceding = pd.read_excel(path_preceding,sheet_name='2024 Complaint Database')
     df_preceding_list = df_preceding.loc[df_preceding['If Manufacturing Complaint']=='Y','Notification Number'].to_list()
     df_result.loc[(~df_result['Notification Number'].isin(df_preceding_list))&(df_result['If Manufacturing Complaint'] =='Y'),'New manufacturing complaints'] = 'Y'
     df_result.insert(0,'New manufacturing complaints',df_result.pop('New manufacturing complaints'))
     
     # 导出完成数据
     df_result.loc[df_result['Notification Number'].isin([200541987]),'If Manufacturing Complaint'] = 'Y'
-    df_result.to_excel('../data/resultAll.xlsx', index = False)
+    df_result.to_excel('../data/resultAll_0306.xlsx', index = False)
     print("Finished!")
     print('='*20,'>>>')
