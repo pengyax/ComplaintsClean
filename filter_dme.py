@@ -129,10 +129,10 @@ def filter(df):
 
 if __name__ == "__main__":
     
-    df_dme = pd.read_excel('../data/DmeData2023.xlsx')
+    df_dme = pd.read_excel('../data/DmeData2024.xlsx')
     result_df_dme = filter(df_dme)
     dme_Manufacturing = result_df_dme.loc[result_df_dme['If Manufacturing Complaint'] == 'Y']
     dme_Manufacturing_gy = dme_Manufacturing.groupby('Month').size()
     print(dme_Manufacturing_gy)
     print(sum(dme_Manufacturing_gy[:12]))
-    result_df_dme.to_excel('../data/dme2023.xlsx',index=False)
+    result_df_dme.to_excel('../data/dme2024.xlsx',index=False)
